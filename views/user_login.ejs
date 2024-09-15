@@ -1,0 +1,25 @@
+<%- include('./partials/header'); %>
+
+<body class="bg-gray-100 h-screen flex items-center justify-center">
+    <div class="bg-white p-8 rounded-lg shadow-md w-96 text-center">
+        <div class="mb-8">
+            <h2 class="text-3xl font-bold text-gray-800">Welcome to FlickBasket</h2>
+            <p class="text-gray-600 mt-2">Your instant delivery partner</p>
+        </div>
+
+        <div class="mb-6">
+            <p class="text-gray-700">Sign in to access your account</p>
+        </div>
+
+        <a href="/auth/google" class="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition duration-150 ease-in-out">
+            <img class="h-5 w-5 mr-2" src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/480px-Google_%22G%22_logo.svg.png" alt="Google logo">
+            Sign in with Google
+        </a>
+
+        <p class="mt-8 text-sm text-gray-600">
+            By signing in, you agree to our 
+            <a href="#" class="text-green-600 hover:text-green-500">Terms of Service</a> and 
+            <a href="#" class="text-green-600 hover:text-green-500">Privacy Policy</a>
+        </p>
+    </div>
+</body>

@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delivery Address Info</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Roboto', sans-serif;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        #map {
+            height: 600px;
+            width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        #inputs {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            margin-bottom: 5px;
+            color: #555;
+        }
+        input[type="text"] {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+        .autocomplete-suggestions {
+            border: 1px solid #ddd;
+            max-height: 200px;
+            overflow-y: auto;
+            background-color: white;
+            border-radius: 0 0 5px 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .autocomplete-suggestion {
+            padding: 10px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .autocomplete-suggestion:hover {
+            background-color: #f0f0f0;
+        }
+        .leaflet-top+.leaflet-right {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Enter your Address</h1>
+        <div id="inputs">
+            <form method="post" action="/order/address/<%= orderid %>">
+                <label for="end">Address:</label>
+                <input type="text" name="address" id="end" placeholder="Eg. Street abc Tokyo">
+                <div id="suggestions" class="autocomplete-suggestions"></div>
+                <input type="submit" value="Submit">
+            </form>
+        </div>
+        <div id="map"></div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+
+    <script>
+        let startLatLng, endLatLng;
+        let userMarker;
+
+        // Initialize the map
+        const map = L.map('map').setView([20.5937, 78.9629], 5); // Centered on India
+
+        // Load and display the tile layer on the map
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+        }).addTo(map);
+
+        // Track the user's location in real-time
+        if (navigator.geolocation) {
+            navigator.geolocation.watchPosition(position => {
+                startLatLng = L.latLng(position.coords.latitude, position.coords.longitude);
+
+                // Update the marker for the user's current location
+                if (userMarker) {
+                    userMarker.setLatLng(startLatLng).update();
+                } else {
+                    userMarker = L.marker(startLatLng).addTo(map)
+                        .bindPopup("You are here").openPopup();
+                }
+
+                // Center the map on the new location
+                map.setView(startLatLng, 13);
+            }, error => {
+                console.error("Error watching position:", error);
+            }, {
+                enableHighAccuracy: true,
+                timeout: 30000,
+                maximumAge: 0
+            });
+        } else {
+            alert("Geolocation is not supported by this browser.");
+        }
+
+        // Set up the geocoder for destination input
+        const endInput = document.getElementById('end');
+        const suggestionsContainer = document.getElementById('suggestions');
+        const geocoder = L.Control.Geocoder.nominatim();
+
+        endInput.addEventListener('input', function () {
+            geocoder.geocode(endInput.value, function (results) {
+                suggestionsContainer.innerHTML = '';
+                results.forEach(function (result) {
+                    const suggestionItem = document.createElement('div');
+                    suggestionItem.className = 'autocomplete-suggestion';
+                    suggestionItem.innerText = result.name;
+                    suggestionItem.addEventListener('click', function () {
+                        endInput.value = result.name;
+                        endLatLng = result.center;
+                        suggestionsContainer.innerHTML = ''; // Clear suggestions
+                        generateRoute();
+                    });
+                    suggestionsContainer.appendChild(suggestionItem);
+                });
+            });
+        });
+
+        // Function to generate a route between two locations
+        function generateRoute() {
+            if (!startLatLng || !endLatLng) {
+                alert("Please select valid locations.");
+                return;
+            }
+
+            // Remove any existing routing control
+            if (window.routingControl) {
+                map.removeControl(window.routingControl);
+            }
+
+            // Add the new routing control with the specified waypoints
+            window.routingControl = L.Routing.control({
+                waypoints: [
+                    startLatLng,
+                    endLatLng
+                ],
+                routeWhileDragging: true,
+                lineOptions: {
+                    styles: [{ color: '#4CAF50', opacity: 0.7, weight: 6 }]
+                },
+                createMarker: function(i, wp, nWps) {
+                    return L.marker(wp.latLng, {
+                        icon: L.icon({
+                            iconUrl: i === 0 ? 'https://cdn0.iconfinder.com/data/icons/small-n-flat/24/678111-map-marker-512.png' : 'https://cdn1.iconfinder.com/data/icons/map-objects/154/map-object-red-point-512.png',
+                            iconSize: [25, 41],
+                            iconAnchor: [12, 41],
+                            popupAnchor: [1, -34],
+                            shadowSize: [41, 41]
+                        })
+                    });
+                }
+            }).addTo(map);
+        }
+    </script>
+
+</body>
+</html>

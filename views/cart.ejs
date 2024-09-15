@@ -1,0 +1,257 @@
+<%- include('./partials/header'); %>
+
+<style>
+    body {
+        font-family: 'Roboto', sans-serif;
+        background-color: #f7f7f7;
+        color: #333;
+    }
+    .container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    .card {
+        background-color: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+        padding: 20px;
+    }
+    .btn {
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    .btn-primary {
+        background-color: #4CAF50;
+        color: white;
+    }
+    .btn-primary:hover {
+        background-color: #45a049;
+    }
+    .btn-secondary {
+        background-color: #f0f0f0;
+        color: #333;
+    }
+    .btn-secondary:hover {
+        background-color: #e0e0e0;
+    }
+    .text-primary {
+        color: #4CAF50;
+    }
+    .text-secondary {
+        color: #757575;
+    }
+</style>
+
+<body class="bg-gray-100 font-sans">
+    <div class="container">
+        <!-- Header -->
+        <div class="flex justify-between items-center py-4">
+            <a href="/products" class="text-lg" title="Go to products"><i class="ri-arrow-left-s-line"></i></a>
+            <h1 class="text-2xl font-bold">Checkout</h1>
+            <button class="text-lg">Share</button>
+        </div>
+
+        <!-- Delivery Info -->
+        <div class="card">
+            <div class="flex items-center gap-4 mb-4">
+                <i class="w-12 h-12 flex items-center justify-center rounded-full bg-green-100 text-2xl text-green-600 ri-timer-line"></i>
+                <div>
+                    <p class="text-lg font-medium">Delivery in <%= Math.floor((Math.random()*10)+3) %> minutes</p>
+                    <p class="text-sm text-secondary">Shipment of 1 item</p>
+                </div>
+            </div>
+            <% cart.forEach(elem => { %>
+                <div class="flex items-center mt-6 pb-4 border-b border-gray-200">
+                    <img src="data:image/jpg;base64, <%= elem.image.toString('base64') %>" alt="<%= elem.name %>" class="w-20 h-20 rounded-lg object-cover">
+                    <div class="ml-4 flex-grow">
+                        <p class="font-medium"><%= elem.name %></p>
+                        <p class="text-sm text-secondary">170 g</p>
+                        <div class="flex justify-between items-center mt-2">
+                            <div class="flex items-center bg-gray-100 rounded-full">
+                                <a href="/cart/remove/<%= elem._id %>" class="px-3 py-1 rounded-full hover:bg-gray-200"><i class="ri-subtract-line"></i></a>
+                                <p class="mx-3 font-medium"><%= elem.quantity %></p>
+                                <a href="/cart/add/<%= elem._id %>" class="px-3 py-1 rounded-full hover:bg-gray-200"><i class="ri-add-line"></i></a>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-sm text-secondary line-through">₹<%= Number(elem.price)*Number(elem.quantity)+20 %></p>
+                                <p class="font-bold">₹<%= Number(elem.price)*Number(elem.quantity) %></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <% }) %>
+        </div>
+
+        <!-- Before You Checkout -->
+        <div class="card">
+            <h2 class="text-xl font-bold mb-4">Before you checkout</h2>
+            <div class="flex space-x-4 mb-6">
+                <!-- ... (rest of the "Before You Checkout" section) ... -->
+            </div>
+            <div class="bg-green-600 text-white p-6 rounded-lg text-center">
+                <h1 class="text-2xl font-bold mb-2">Get FREE delivery</h1>
+                <p class="text-sm mb-4">Add products worth ₹236 more</p>
+                <button class="btn btn-secondary text-green-600">See all coupons</button>
+            </div>
+        </div>
+
+        <!-- Bill Details -->
+        <div class="card">
+            <h2 class="text-xl font-bold mb-4">Bill details</h2>
+            <div class="space-y-2">
+                <div class="flex justify-between">
+                    <p>Items total</p>
+                    <p>₹<%= finalprice - 34 %></p>
+                </div>
+                <div class="flex justify-between">
+                    <p>Delivery charge</p>
+                    <p>₹30</p>
+                </div>
+                <div class="flex justify-between">
+                    <p>Handling charge</p>
+                    <p>₹4</p>
+                </div>
+                <div class="flex justify-between font-bold text-lg pt-2 border-t">
+                    <p>Grand total</p>
+                    <p>₹<%= finalprice %></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Donation -->
+        <div class="card">
+            <div class="flex items-center">
+                <img src="https://b.zmtcdn.com/data/fi_assets/9fbf0569f69bfef7d190c5b892ab0a521619355737.png" alt="Feeding India" class="w-16 h-16 rounded-full mr-4">
+                <div class="flex-grow">
+                    <p class="font-bold">Feeding India donation</p>
+                    <p class="text-sm text-secondary">Working towards a malnutrition free India. Feeding India...<span class="text-blue-500">read more</span></p>
+                </div>
+                <p class="font-bold">₹1</p>
+            </div>
+        </div>
+
+        <!-- Delivery Instructions -->
+        <div class="card">
+            <h2 class="text-xl font-bold mb-4">Delivery instructions</h2>
+            <div class="grid grid-cols-2 gap-4">
+                <button class="btn btn-secondary flex flex-col items-center justify-center py-4">
+                    <i class="ri-mic-line text-2xl mb-2"></i>
+                    <p>Record</p>
+                </button>
+                <button class="btn btn-secondary flex flex-col items-center justify-center py-4">
+                    <i class="ri-prohibited-line text-2xl mb-2"></i>
+                    <p>Avoid calling</p>
+                </button>
+                <button class="btn btn-secondary flex flex-col items-center justify-center py-4">
+                    <i class="ri-notification-off-line text-2xl mb-2"></i>
+                    <p>Don't ring the bell</p>
+                </button>
+                <button class="btn btn-secondary flex flex-col items-center justify-center py-4">
+                    <i class="ri-door-open-line text-2xl mb-2"></i>
+                    <p>Leave at door</p>
+                </button>
+            </div>
+        </div>
+
+        <!-- Ordering for someone else -->
+        <div class="card">
+            <p class="font-medium">Ordering for someone else? Add details</p>
+        </div>
+        
+        <!-- Cancellation Policy -->
+        <div class="card mb-40">
+            <p class="text-sm text-secondary">
+                Orders cannot be cancelled once packed for delivery. In case of unexpected delays, a refund will be provided, if applicable.
+            </p>
+        </div>
+
+        <!-- Footer -->
+        <div class="fixed bottom-0 inset-x-0 bg-white shadow-lg p-4">
+            <div class="container">
+            
+                <div class="flex justify-between items-center">
+                    <div>
+                        <p class="text-sm font-medium">PAY USING</p>
+                        <p class="text-secondary">Paytm UPI</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-2xl font-bold mb-2">₹<%= finalprice %></p>
+                        <button class="paybtn btn btn-primary">Place Order</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+        document.querySelector('.paybtn').onclick = function (e) {
+            axios.post('/payment/create/orderId')
+                .then(function (response) {
+                    var options = {
+                        "key": "rzp_test_Og18WWHWhnsSeq",
+                        "amount": response.data.amount,
+                        "currency": response.data.currency,
+                        "name": "FlickBasket",
+                        "description": "Test Transaction",
+                        "image": "https://example.com/your_logo",
+                        "order_id": response.data.id,
+                        "handler": function (response) {
+                            axios.post('/payment/api/payment/verify', {
+                                razorpayOrderId: response.razorpay_order_id,
+                                razorpayPaymentId: response.razorpay_payment_id,
+                                signature: response.razorpay_signature
+                            })
+                                .then(function (verifyResponse) {
+                                    if (verifyResponse.data.status === 'success') {
+                                        window.location.href = verifyResponse.data.redirectUrl;
+                                    } else {
+                                        alert('Payment verification failed');
+                                    }
+                                })
+                                .catch(function (error) {
+                                    console.error(error);
+                                    alert('An error occurred during payment verification');
+                                });
+                        },
+                        "prefill": {
+                            "name": "Kartik Shah",
+                            "email": "kartikshah@example.com",
+                            "contact": "9000090000"
+                        },
+                        "notes": {
+                            "address": "Razorpay Corporate Office"
+                        },
+                        "theme": {
+                            "color": "#4CAF50"
+                        }
+                    };
+                    var rzp1 = new Razorpay(options);
+                    rzp1.on('payment.failed', function (response) {
+                        alert('Payment Failed');
+                        console.error('Error Code:', response.error.code);
+                        console.error('Description:', response.error.description);
+                        console.error('Source:', response.error.source);
+                        console.error('Step:', response.error.step);
+                        console.error('Reason:', response.error.reason);
+                        console.error('Order ID:', response.error.metadata.order_id);
+                        console.error('Payment ID:', response.error.metadata.payment_id);
+                    });
+                    rzp1.open();
+                    e.preventDefault();
+                })
+                .catch(function (error) {
+                    console.error(error);
+                    alert('An error occurred while creating the order');
+                });
+        };
+    </script>
+</body>
+
+<%- include('./partials/footer'); %>
